@@ -1,0 +1,79 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ hotel.name }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f8f8f8;
+            padding: 20px;
+        }
+        .hotel-box {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px #ccc;
+            margin-bottom: 30px;
+        }
+        .reviews-box {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px #ccc;
+        }
+        .review {
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .review strong {
+            color: #333;
+        }
+        a {
+            text-decoration: none;
+            color: #2196F3;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="hotel-box">
+        <h2>{{ hotel.name }}</h2>
+        <p><strong>Locație:</strong> {{ hotel.location }}</p>
+        <p><strong>Descriere:</strong> {{ hotel.description }}</p>
+        <p><strong>Tipuri disponibile:</strong> {{ hotel.available_types }}</p>
+        <p><strong>Preț pe noapte:</strong> {{ hotel.price_per_night }} RON</p>
+        <p><strong>Rating mediu:</strong> {{ avg_rating|default:"Fără rating" }}</p>
+    </div>
+
+    <a href="{% url 'reserve_hotel' hotel.id %}" style="display:inline-block; margin-bottom: 20px; background:#2196F3; color:white; padding:10px 15px; border-radius:5px;">Fă o rezervare</a>
+
+    {% if request.user.is_staff %}
+    <div class="mb-3">
+        <a href="{% url 'update_hotel' hotel.id %}" style="display:inline-block; margin-bottom: 20px; background:#2196F3; color:white; padding:10px 15px; border-radius:5px;" class="btn btn-warning me-2">Modifică hotel</a>
+        <a href="{% url 'delete_hotel' hotel.id %}" style="display:inline-block; margin-bottom: 20px; background:#dc3545; color:white; padding:10px 15px; border-radius:5px;" class="btn btn-danger" onclick="return confirm('Ești sigur că vrei să ștergi acest hotel?');">Șterge hotel</a>
+    </div>
+    {% endif %} 
+
+
+    <div class="reviews-box">
+        <h3>Recenzii</h3>
+        {% if reviews %}
+            {% for review in reviews %}
+                <div class="review">
+                    <strong>{{ review.user.username }}</strong> - {{ review.rating }}/5<br>
+                    <em>{{ review.date_posted|date:"d M Y H:i" }}</em>
+                    <p>{{ review.text }}</p>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>Acest hotel nu are recenzii încă.</p>
+        {% endif %}
+    </div>
+
+    <br>
+    <a href="{% url 'hotels' %}">← Înapoi la listă</a>
+
+</body>
+</html>

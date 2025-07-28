@@ -1,0 +1,76 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Rezervă la {{ hotel.name }}</title>
+    <style>
+        body {
+            font-family: Arial;
+            padding: 20px;
+            background: #f4f4f4;
+        }
+        .box {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px #ccc;
+            max-width: 500px;
+            margin: auto;
+        }
+        label, input {
+            display: block;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+        input[type="submit"] {
+            background-color: #2196F3;
+            color: white;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+        }
+        .msg {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .error {
+            background: #ffe5e5;
+            color: #b30000;
+        }
+        .success {
+            background: #e5ffe5;
+            color: #008000;
+        }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h2>Rezervă la {{ hotel.name }}</h2>
+
+        {% if error %}
+            <div class="msg error">{{ error }}</div>
+        {% endif %}
+        {% if success %}
+            <div class="msg success">{{ success }}</div>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+            <label>Data de început:</label>
+            <input type="date" name="start_date" required>
+
+            <label>Data de sfârșit:</label>
+            <input type="date" name="end_date" required>
+
+            <p><strong>Tip cameră:</strong> {{ hotel.get_available_types_display }}</p>
+            <p><strong>Preț pe noapte:</strong> {{ hotel.price_per_night }} RON</p>
+
+            <input type="submit" value="Rezervă acum">
+        </form>
+
+        <br>
+        <a href="{% url 'hotel_detail' hotel.id %}">← Înapoi la hotel</a>
+    </div>
+</body>
+</html>

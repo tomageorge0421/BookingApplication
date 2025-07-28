@@ -1,0 +1,180 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Lista Hoteluri</title>
+    <link rel="stylesheet" href="{% static 'booking/styles.css' %}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f8f8f8;
+        }
+        .container {
+            display: flex;
+            padding: 20px;
+            gap: 20px;
+            min-height: 100vh;
+        }
+        /* Stânga: lista hotelurilor */
+        .left-column {
+            flex: 4; /* 80% */
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .hotel-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 0 8px #ccc;
+            text-align: left;
+        }
+        /* Dreapta: butoane + filter */
+        .right-column {
+            flex: 1; /* 20% */
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 0 8px #ccc;
+            height: fit-content;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+        }
+        .filter-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .filter-buttons button {
+            width: 100px;
+            padding: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #4CAF50;
+            color: white;
+        }
+        .filter-buttons button:hover {
+            background-color: #45a049;
+        }
+        #filter-form {
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+        }
+        #filter-form label {
+            font-weight: bold;
+        }
+        #filter-form input {
+            width: 100%;
+            padding: 6px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+        #filter-form button[type="submit"] {
+            margin-top: 10px;
+            background-color: #2196F3;
+            border: none;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 5px;
+            padding: 10px;
+        }
+        #filter-form button[type="submit"]:hover {
+            background-color: #0b7dda;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <div class="left-column">
+        <h2>Lista hotelurilor</h2>
+        {% if hotels %}
+            {% for hotel in hotels %}
+                <div class="hotel-card">
+                    <a href="{% url 'hotel_detail' hotel.id %}">
+                    <strong>{{ hotel.name }}</strong>
+                    </a><br>
+                    Locație: {{ hotel.location }}<br>
+                    Available types: {{ hotel.available_types }}<br>
+                    Preț pe noapte: {{ hotel.price_per_night }} RON<br>
+                    Rating mediu: {{ hotel.avg_rating|default:"Fără rating" }}
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>Nu există hoteluri care să corespundă criteriilor.</p>
+        {% endif %}
+    </div>
+
+    <div class="right-column">
+        <div class="filter-buttons">
+            <button onclick="toggleFilter()">Filtrare</button>
+            <form method="get" style="display:inline;">
+                <button type="submit">Reset filters</button>
+            </form>
+        </div>
+
+        <form method="get" id="filter-form">
+            <label>Locație:</label>
+            <input type="text" name="location" value="{{ request.GET.location }}">
+            
+            <label>Tip cameră (1P, 2P, 3P, APT):</label>
+            <input type="text" name="room_type" value="{{ request.GET.room_type }}">
+            
+            <label>Preț maxim pe noapte:</label>
+            <input type="number" step="0.01" name="max_price" value="{{ request.GET.max_price }}">
+            
+            <label>Rating minim:</label>
+            <input type="number" step="0.1" min="1" max="5" name="min_rating" value="{{ request.GET.min_rating }}">
+            
+            <button type="submit">Aplică filtrele</button>
+        </form>
+
+        {% if request.user.is_staff %}
+        <div style="margin-top: 20px;">
+            <a href="{% url 'create_hotel' %}" class="btn btn-success w-100">+ Crează hotel</a>
+        </div>
+        {% endif %}
+
+
+        <div class="mt-4 d-grid">
+            <a href="{% url 'my_reservations' %}" class="btn btn-primary btn-lg">
+                <i class="fas fa-calendar-check me-2"></i> Rezervările mele
+            </a>
+        </div>
+
+    </div>
+
+
+</div>
+
+<script>
+    function toggleFilter() {
+        const form = document.getElementById('filter-form');
+        if (form.style.display === 'flex') {
+            form.style.display = 'none';
+        } else {
+            form.style.display = 'flex';
+        }
+    }
+
+    // Dacă avem query params, arată filtrul la încărcare
+    window.onload = function() {
+        const params = new URLSearchParams(window.location.search);
+        if (params.toString()) {
+            document.getElementById('filter-form').style.display = 'flex';
+        }
+    }
+</script>
+
+</body>
+</html>

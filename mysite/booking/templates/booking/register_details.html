@@ -1,0 +1,21 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'booking/styles.css' %}">
+</head>
+<body>
+
+<h2>Completează-ți profilul</h2>
+<form method="post">
+    {% csrf_token %}
+    <label>Prenume:</label><input type="text" name="first_name"><br>
+    <label>Nume:</label><input type="text" name="last_name"><br>
+    <label>Email:</label><input type="email" name="email"><br>
+    <button type="submit">Finalizează</button>
+</form>
+{% if error %}
+    <p style="color:red;">{{ error }}</p>
+{% endif %}
