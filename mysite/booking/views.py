@@ -221,3 +221,59 @@ def create_hotel_view(request):
         'error': error,
         'hotel':Hotel()
         })
+
+@staff_member_required
+def update_review_view(request, review_id):
+    review = get_object_or_404(HotelReview, pk=review_id)
+    
+    if request.method == 'POST':
+        review.text = request.POST['text']
+        review.rating = request.POST['rating']
+        review.save()
+        return redirect('hotel_detail', hotel_id=review.reservation.hotel.id)
+    
+    return render(request, 'booking/update_review.html', {'review': review})
+
+
+@staff_member_required
+def delete_review_view(request, review_id):
+    review = get_object_or_404(HotelReview, pk=review_id)
+    hotel_id = review.reservation.hotel.id
+    review.delete()
+    return redirect('hotel_detail', hotel_id=hotel_id)
+
+@staff_member_required
+def create_review_view(request):
+    error = None
+    success = None
+
+    if request.method == 'POST':
+        reservation_id = request.POST.get('reservation_id')
+        rating = request.POST.get('rating')
+        text = request.POST.get('text')
+
+        try:
+            reservation = Reservation.objects.get(id=reservation_id)
+
+            if hasattr(reservation, 'hotelreview'):
+                error = "Această rezervare are deja o recenzie."
+            else:
+                HotelReview.objects.create(
+                    reservation=reservation,
+                    rating=rating,
+                    text=text
+                )
+                success = "Recenzia a fost adăugată cu succes."
+
+        except Reservation.DoesNotExist:
+            error = "Rezervarea nu a fost găsită."
+
+    eligible_reservations = Reservation.objects.filter(
+        hotelreview__isnull=True
+    ).select_related('user', 'hotel')
+
+    return render(request, 'booking/create_review.html', {
+        'reservations': eligible_reservations,
+        'error': error,
+        'success': success
+    })
