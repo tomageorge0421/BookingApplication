@@ -7,6 +7,8 @@ from .views import create_reservation_admin, all_reservations_view
 
 from django.contrib.auth.views import LogoutView
 
+from .views.review_views import update_own_review, delete_own_review
+
 
 
 
@@ -31,4 +33,7 @@ urlpatterns = [
     path('admin/reservations/<int:reservation_id>/delete/', views.delete_reservation_admin, name='delete_reservation_admin'),
     path('admin/reservations/<int:reservation_id>/update/', views.update_reservation_admin, name='update_reservation_admin'),
     path('logout/', LogoutView.as_view(next_page='index'), name='logout'),
+    path('reviews/update_own/<int:review_id>/', update_own_review, name='update_own_review'),
+    path('reviews/delete_own/<int:review_id>/', delete_own_review, name='delete_own_review'),
+
 ]

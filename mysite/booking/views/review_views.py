@@ -85,3 +85,33 @@ def create_review_view(request):
         'error': error,
         'success': success
     })
+
+@login_required
+def update_own_review(request, review_id):
+    review = get_object_or_404(HotelReview, id=review_id)
+
+    if review.user != request.user:
+        return HttpResponseForbidden("Nu ai permisiunea să editezi această recenzie.")
+
+    if request.method == 'POST':
+        review.rating = request.POST['rating']
+        review.text = request.POST['text']
+        review.save()
+        return redirect('hotel_detail', review.hotel.id)
+
+    return render(request, 'booking/update_review.html', {'review': review})
+
+
+@login_required
+def delete_own_review(request, review_id):
+    review = get_object_or_404(HotelReview, id=review_id)
+
+    if review.user != request.user:
+        return HttpResponseForbidden("Nu ai permisiunea să ștergi această recenzie.")
+
+    if request.method == 'POST':
+        hotel_id = review.hotel.id
+        review.delete()
+        return redirect('hotel_detail', hotel_id)
+
+    return render(request, 'booking/confirm_delete_review.html', {'review': review})

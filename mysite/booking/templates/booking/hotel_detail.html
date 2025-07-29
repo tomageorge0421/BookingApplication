@@ -67,10 +67,16 @@
                     <em>{{ review.date_posted|date:"d M Y H:i" }}</em>
                     <p>{{ review.text }}</p>
 
-                    {% if request.user.is_staff %}
-                    <a href="{% url 'update_review' review.id %}" style="color: #ffc107; margin-right: 10px;">Modifică review</a>
-                    <a href="{% url 'delete_review' review.id %}" style="color: #dc3545;" onclick="return confirm('Ești sigur că vrei să ștergi această recenzie?');">Șterge review</a>
+                    {% if request.user.is_staff or review.user == request.user %}
+                        {% if request.user.is_staff %}
+                            <a href="{% url 'update_review' review.id %}" style="color: #ffc107; margin-right: 10px;">Modifică review</a>
+                            <a href="{% url 'delete_review' review.id %}" style="color: #dc3545;" onclick="return confirm('Ești sigur că vrei să ștergi această recenzie?');">Șterge review</a>
+                        {% else %}
+                            <a href="{% url 'update_own_review' review.id %}" style="color: #ffc107; margin-right: 10px;">Editează</a>
+                            <a href="{% url 'delete_own_review' review.id %}" style="color: #dc3545;" onclick="return confirm('Ești sigur că vrei să ștergi această recenzie?');">Șterge</a>
+                        {% endif %}
                     {% endif %}
+
 
                 </div>
             {% endfor %}

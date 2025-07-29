@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Confirmă ștergerea</title>
+</head>
+<body>
+    <h2>Confirmă ștergerea recenziei</h2>
+    <p>Ești sigur că vrei să ștergi această recenzie?</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit">Da, șterge</button>
+        <a href="{% url 'hotel_detail' review.hotel.id %}">Renunță</a>
+    </form>
+</body>
+</html>
