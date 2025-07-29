@@ -3,7 +3,11 @@ from django.shortcuts import render
 from django.http import HttpResponse
 
 from django.contrib.auth import authenticate, login as auth_login
-from django.contrib.auth.models import User
+from django.conf import settings
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
 from django.shortcuts import redirect
 from .models import CustomUser, Reservation
 from django.contrib.auth.decorators import login_required
@@ -277,3 +281,98 @@ def create_review_view(request):
         'error': error,
         'success': success
     })
+
+@staff_member_required
+def all_reservations_view(request):
+    reservations = Reservation.objects.select_related('user', 'hotel').all().order_by('-start_date')
+    return render(request, 'booking/list.html', {
+        'reservations': reservations
+    })
+
+@staff_member_required
+def create_reservation_admin(request):
+    if request.method == 'POST':
+        user_id = request.POST.get('user')
+        hotel_id = request.POST.get('hotel')
+        start_date = parse_date(request.POST.get('start_date'))
+        end_date = parse_date(request.POST.get('end_date'))
+
+        user = User.objects.get(id=user_id)
+        hotel = Hotel.objects.get(id=hotel_id)
+
+        nights = (end_date - start_date).days
+        room_type = hotel.available_types  # presupunem că e un string (ex: "1P")
+        total_price = nights * hotel.price_per_night
+
+        Reservation.objects.create(
+            user=user,
+            hotel=hotel,
+            start_date=start_date,
+            end_date=end_date,
+            room_type=room_type,
+            total_price=total_price
+        )
+        return redirect('admin_reservations')
+
+    users = User.objects.all()
+    hotels = Hotel.objects.all()
+    return render(request, 'booking/create_reservation.html', {
+        'users': users,
+        'hotels': hotels
+    })
+
+@staff_member_required
+def delete_reservation_admin(request, reservation_id):
+    reservation = get_object_or_404(Reservation, id=reservation_id)
+    if request.method == 'POST':
+        reservation.delete()
+        return redirect('admin_reservations')
+    return render(request, 'booking/delete_reservation_confirm.html', {
+        'reservation': reservation
+    })
+
+@staff_member_required
+def update_reservation_admin(request, reservation_id):
+    reservation = get_object_or_404(Reservation, id=reservation_id)
+
+    if request.method == 'POST':
+        user_id = request.POST.get('user')
+        hotel_id = request.POST.get('hotel')
+        start_date = parse_date(request.POST.get('start_date'))
+        end_date = parse_date(request.POST.get('end_date'))
+
+        if start_date > end_date:
+            users = User.objects.all()
+            hotels = Hotel.objects.all()
+            return render(request, 'booking/update_reservation.html', {
+                'reservation': reservation,
+                'users': users,
+                'hotels': hotels,
+                'error': 'Data de început nu poate fi după data de sfârșit.'
+            })
+
+        user = User.objects.get(id=user_id)
+        hotel = Hotel.objects.get(id=hotel_id)
+
+        nights = (end_date - start_date).days
+        room_type = hotel.available_types
+        total_price = nights * hotel.price_per_night
+
+        reservation.user = user
+        reservation.hotel = hotel
+        reservation.start_date = start_date
+        reservation.end_date = end_date
+        reservation.room_type = room_type
+        reservation.total_price = total_price
+        reservation.save()
+
+        return redirect('admin_reservations')
+
+    users = User.objects.all()
+    hotels = Hotel.objects.all()
+    return render(request, 'booking/update_reservation.html', {
+        'reservation': reservation,
+        'users': users,
+        'hotels': hotels
+    })
+

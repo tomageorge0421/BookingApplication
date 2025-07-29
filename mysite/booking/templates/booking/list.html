@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Toate rezervările</title>
+    <style>
+        table { width: 100%; border-collapse: collapse; background: #fff; }
+        th, td { padding: 10px; border: 1px solid #ccc; text-align: left; }
+        th { background-color: #f0f0f0; }
+        a.button { padding: 6px 10px; background: #2196F3; color: white; text-decoration: none; border-radius: 4px; }
+        a.button.red { background: #dc3545; }
+    </style>
+</head>
+<body>
+    <h2>Toate rezervările</h2>
+    <a href="{% url 'create_reservation_admin' %}" class="button">Adaugă rezervare</a>
+    <br><br>
+    <table>
+        <thead>
+            <tr>
+                <th>User</th>
+                <th>Hotel</th>
+                <th>Start</th>
+                <th>End</th>
+                <th>Tip cameră</th>
+                <th>Preț total</th>
+                <th>Acțiuni</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for r in reservations %}
+            <tr>
+                <td>{{ r.user.username }}</td>
+                <td>{{ r.hotel.name }}</td>
+                <td>{{ r.start_date }}</td>
+                <td>{{ r.end_date }}</td>
+                <td>{{ r.room_type }}</td>
+                <td>{{ r.total_price }}</td>
+                <td>
+                    <a href="{% url 'update_reservation_admin' r.id %}" class="button">Modifică</a>
+                    <form action="{% url 'delete_reservation_admin' r.id %}" method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" onclick="return confirm('Ești sigur că vrei să ștergi această rezervare?');">Șterge</button>
+                    </form>
+                    {#<a href="{% url 'delete_reservation_admin' r.id %}" class="button red" onclick="return confirm('Ești sigur?');">Șterge</a>#}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="{% url 'hotels' %}">← Înapoi la hoteluri</a>
+</body>
+</html>

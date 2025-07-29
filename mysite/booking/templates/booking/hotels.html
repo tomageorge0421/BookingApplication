@@ -143,6 +143,13 @@
         <div style="margin-top: 20px;">
             <a href="{% url 'create_hotel' %}" class="btn btn-success w-100">+ Crează hotel</a>
         </div>
+
+        <div class="mt-4 d-grid">
+            <a href="{% url 'admin_reservations' %}" class="btn btn-danger btn-lg">
+                <i class="fas fa-list me-2"></i> Toate rezervările
+            </a>
+        </div>
+
         {% endif %}
 
 
@@ -152,7 +159,16 @@
             </a>
         </div>
 
+        <form action="{% url 'logout' %}" method="post">
+            {% csrf_token %}
+            <button type="submit" style="width: 100%; padding: 8px; background-color: #f44336; color: white; border: none; border-radius: 5px; margin-top: 20px;">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </form>
+
     </div>
+
+    
 
 
 </div>

@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Confirmare ștergere rezervare</title>
+</head>
+<body>
+    <h2>Confirmare ștergere rezervare</h2>
+    <p>Sigur dorești să ștergi rezervarea pentru <strong>{{ reservation.user.username }}</strong> la hotelul <strong>{{ reservation.hotel.name }}</strong>?</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit">Șterge</button>
+        <a href="{% url 'admin_reservations' %}">Anulează</a>
+    </form>
+</body>
+</html>

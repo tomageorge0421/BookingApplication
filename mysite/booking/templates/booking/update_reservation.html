@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Editează rezervarea</title>
+</head>
+<body>
+    <h2>Editează rezervarea</h2>
+    <form method="post">
+        {% csrf_token %}
+        <label>User:</label>
+        <select name="user">
+            {% for user in users %}
+                <option value="{{ user.id }}" {% if user.id == reservation.user.id %}selected{% endif %}>{{ user.username }}</option>
+            {% endfor %}
+        </select><br><br>
+
+        <label>Hotel:</label>
+        <select name="hotel">
+            {% for hotel in hotels %}
+                <option value="{{ hotel.id }}" {% if hotel.id == reservation.hotel.id %}selected{% endif %}>{{ hotel.name }}</option>
+            {% endfor %}
+        </select><br><br>
+
+        <label>Data început:</label>
+        <input type="date" name="start_date" value="{{ reservation.start_date|date:'Y-m-d' }}">
+
+        <label>Data sfârșit:</label>
+        <input type="date" name="end_date" value="{{ reservation.end_date|date:'Y-m-d' }}">
+
+        <button type="submit">Salvează modificările</button>
+
+        {% if error %}
+            <p style="color: red;"><strong>{{ error }}</strong></p>
+        {% endif %}
+
+
+    </form>
+    <br>
+    <a href="{% url 'admin_reservations' %}">← Înapoi la rezervări</a>
+</body>
+</html>

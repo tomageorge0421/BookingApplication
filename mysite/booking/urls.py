@@ -1,8 +1,14 @@
 from django.urls import path
-from .views import create_review_view
 
 
 from . import views
+
+from .views import create_reservation_admin, all_reservations_view
+
+from django.contrib.auth.views import LogoutView
+
+
+
 
 urlpatterns = [
     path("", views.index, name="index"),
@@ -19,7 +25,10 @@ urlpatterns = [
     path("hotels/create/", views.create_hotel_view, name="create_hotel"),
     path("reviews/<int:review_id>/update/", views.update_review_view, name="update_review"),
     path("reviews/<int:review_id>/delete/", views.delete_review_view, name="delete_review"),
-    path('admin/create_review/', create_review_view, name='create_review'),
-
-
+    path('admin/create_review/', views.create_review_view, name='create_review'),
+    path('admin/reservations/', all_reservations_view, name='admin_reservations'),
+    path('admin/reservations/create/', create_reservation_admin, name='create_reservation_admin'),
+    path('admin/reservations/<int:reservation_id>/delete/', views.delete_reservation_admin, name='delete_reservation_admin'),
+    path('admin/reservations/<int:reservation_id>/update/', views.update_reservation_admin, name='update_reservation_admin'),
+    path('logout/', LogoutView.as_view(next_page='index'), name='logout'),
 ]
