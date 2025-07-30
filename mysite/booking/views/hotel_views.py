@@ -4,6 +4,7 @@ from django.db.models import Avg
 from ..models import Hotel, HotelReview
 from datetime import date
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 
 @login_required
 def hotels_view(request):
@@ -61,7 +62,15 @@ def update_hotel_view(request, hotel_id):
 @staff_member_required
 def delete_hotel_view(request, hotel_id):
     hotel = get_object_or_404(Hotel, id=hotel_id)
-    hotel.delete()
+
+    has_active_reservations = hotel.reservation_set.filter(end_date__gte=date.today()).exists()
+
+    if has_active_reservations:
+        hotel.is_active = False  # Mark it as inactive
+        hotel.save()
+    else:
+        hotel.delete()
+
     return redirect('hotels')
 
 @staff_member_required
@@ -91,3 +100,16 @@ def create_hotel_view(request):
         'error': error,
         'hotel':Hotel()
         })
+
+@staff_member_required
+def make_hotel_active_view(request, hotel_id):
+    hotel = get_object_or_404(Hotel, id=hotel_id)
+
+    if hotel.is_active:
+        messages.warning(request, "Hotelul este deja activ.")
+    else:
+        hotel.is_active = True
+        hotel.save()
+        messages.success(request, f"Hotelul {hotel.name} a fost activat cu succes.")
+
+    return redirect('hotel_detail', hotel_id=hotel.id)

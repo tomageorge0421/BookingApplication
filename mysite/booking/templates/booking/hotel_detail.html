@@ -47,7 +47,16 @@
         <p><strong>Rating mediu:</strong> {{ avg_rating|default:"Fără rating" }}</p>
     </div>
 
-    <a href="{% url 'reserve_hotel' hotel.id %}" style="display:inline-block; margin-bottom: 20px; background:#2196F3; color:white; padding:10px 15px; border-radius:5px;">Fă o rezervare</a>
+    {% if not hotel.is_active %}
+        <p style="color: red; font-weight: bold;">
+            Acest hotel este în mentenanță și nu poate fi rezervat momentan.
+        </p>
+    {% endif %}
+
+    {% if hotel.is_active %}
+        <a href="{% url 'reserve_hotel' hotel.id %}" style="display:inline-block; margin-bottom: 20px; background:#2196F3; color:white; padding:10px 15px; border-radius:5px;">Fă o rezervare</a>
+    {% endif %}
+
 
     {% if request.user.is_staff %}
     <div class="mb-3">
@@ -56,6 +65,14 @@
         <a href="{% url 'create_review' %}" style="display:inline-block; margin-bottom: 20px; background:#4CAF50; color:white; padding:10px 15px; border-radius:5px;">Adaugă recenzie manual</a>
     </div>
     {% endif %} 
+
+    {% if request.user.is_staff and not hotel.is_active %}
+        <a href="{% url 'make_hotel_active' hotel.id %}" 
+            style="display:inline-block; margin-bottom: 20px; background:#4CAF50; color:white; padding:10px 15px; border-radius:5px;">
+            Fă hotelul activ
+        </a>
+    {% endif %}
+
 
 
     <div class="reviews-box">

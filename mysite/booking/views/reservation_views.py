@@ -12,7 +12,13 @@ User = get_user_model()
 
 @login_required
 def reserve_view(request, hotel_id):
-    hotel = Hotel.objects.get(id=hotel_id)
+    hotel = get_object_or_404(Hotel, id=hotel_id)
+
+    if not hotel.is_active:
+        messages.error(request, "Acest hotel este în mentenanță și nu poate fi rezervat momentan.")
+        return redirect('hotels')
+
+    
     error = None
     success = None
 
@@ -83,7 +89,7 @@ def create_reservation_admin(request):
         return redirect('admin_reservations')
 
     users = User.objects.all()
-    hotels = Hotel.objects.all()
+    hotels = Hotel.objects.filter(is_active=True)
     return render(request, 'booking/create_reservation.html', {
         'users': users,
         'hotels': hotels
