@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <title>Profilul meu</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f8;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 50px auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 15px;
+            color: #555;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 4px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 25px;
+        }
+
+        .buttons button {
+            flex: 1;
+            padding: 10px;
+            margin: 0 5px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .update-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .delete-btn {
+            background-color: #f44336;
+            color: white;
+        }
+
+        a {
+            display: block;
+            margin-top: 30px;
+            text-align: center;
+            color: #3498db;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Profilul meu</h2>
+
+        <form method="post">
+            {% csrf_token %}
+            <label>Username:
+                <input type="text" name="username" value="{{ user.username }}" required>
+            </label>
+
+            <label>First name:
+                <input type="text" name="first_name" value="{{ user.first_name }}">
+            </label>
+
+            <label>Last name:
+                <input type="text" name="last_name" value="{{ user.last_name }}">
+            </label>
+
+            <label>Email:
+                <input type="email" name="email" value="{{ user.email }}" required>
+            </label>
+
+            <label>Vârstă:
+                <input type="number" name="age" value="{{ user.age }}">
+            </label>
+
+            <label>Profesie:
+                <input type="text" name="profession" value="{{ user.profession }}">
+            </label>
+
+            <div class="buttons">
+                <button type="submit" name="action" value="update" class="update-btn">Update Details</button>
+                <button type="submit" name="action" value="delete" class="delete-btn" onclick="return confirm('Sigur vrei să îți ștergi contul? Aceasta acțiune este ireversibilă.');">Delete My Profile</button>
+            </div>
+        </form>
+
+        <hr><br>
+            {% if not is_admin %}
+                <h3>Dashboard utilizator</h3>
+                <p><strong>Total cheltuit:</strong> {{ total_spent }} RON</p>
+                <p><strong>Număr de rezervări:</strong> {{ num_reservations }}</p>
+                <p><strong>Evaluare medie:</strong> {{ average_rating|default:"Nicio evaluare" }}</p>
+            {% else %}
+            <h3>Dashboard admin</h3>
+                <h4>Rezervări în ultimele 7 zile:</h4>
+                    <ul>
+                        {% for entry in bookings_per_day %}
+                            <li>{{ entry.day }}: {{ entry.count }} rezervări</li>
+                        {% empty %}
+                            <li>Nicio rezervare recentă.</li>
+                        {% endfor %}
+                    </ul>
+                <h4>Top hoteluri după rating:</h4>
+                    <ul>
+                        {% for hotel in top_hotels %}
+                            <li>{{ hotel.name }} — {{ hotel.avg_rating|floatformat:2 }}★</li>
+                        {% empty %}
+                            <li>Niciun hotel evaluat.</li>
+                        {% endfor %}
+                    </ul>
+                <h4>Recenzii în ultimele 7 zile:</h4>
+                    <ul>
+                        {% for entry in reviews_per_day %}
+                            <li>{{ entry.day }}: {{ entry.count }} recenzii</li>
+                        {% empty %}
+                            <li>Nicio recenzie recentă.</li>
+                        {% endfor %}
+                    </ul>
+            {% endif %}
+        <a href="{% url 'hotels' %}">← Înapoi la hoteluri</a>
+    </div>
+</body>
+</html>

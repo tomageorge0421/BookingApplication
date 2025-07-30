@@ -9,7 +9,7 @@ from django.contrib.auth.views import LogoutView
 
 from .views.review_views import update_own_review, delete_own_review
 
-
+from .views.auth_views import my_profile_view
 
 
 urlpatterns = [
@@ -35,5 +35,5 @@ urlpatterns = [
     path('logout/', LogoutView.as_view(next_page='index'), name='logout'),
     path('reviews/update_own/<int:review_id>/', update_own_review, name='update_own_review'),
     path('reviews/delete_own/<int:review_id>/', delete_own_review, name='delete_own_review'),
-
+    path('my_profile/', my_profile_view, name='my_profile'),
 ]

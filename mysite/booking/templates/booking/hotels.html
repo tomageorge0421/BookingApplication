@@ -159,6 +159,8 @@
             </a>
         </div>
 
+        <a href="{% url 'my_profile' %}" style="margin-bottom: 20px; background:#607D8B; color:white; padding:10px 15px; border-radius:5px;">Profilul meu</a>
+
         <form action="{% url 'logout' %}" method="post">
             {% csrf_token %}
             <button type="submit" style="width: 100%; padding: 8px; background-color: #f44336; color: white; border: none; border-radius: 5px; margin-top: 20px;">

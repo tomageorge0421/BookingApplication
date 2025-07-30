@@ -3,6 +3,10 @@ from django.contrib.auth import authenticate, login as auth_login
 from django.contrib.auth import get_user_model
 from ..models import CustomUser
 from django.contrib.auth.decorators import login_required
+from booking.models import Reservation, HotelReview, Hotel
+from django.db.models import Avg, Count, Sum
+from django.utils.timezone import now
+from datetime import timedelta
 
 User = get_user_model()
 
@@ -53,3 +57,76 @@ def register_details_view(request):
 
         return redirect('index')  # sau redirect unde vrei
     return render(request, 'booking/register_details.html', {'error': error})
+
+@login_required
+def my_profile_view(request):
+    user = request.user
+    context = {'user': user}
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+
+        if action == 'update':
+            user.username = request.POST.get('username')
+            user.first_name = request.POST.get('first_name')
+            user.last_name = request.POST.get('last_name')
+            user.email = request.POST.get('email')
+            user.age = request.POST.get('age')
+            user.profession = request.POST.get('profession')
+            user.save()
+            return redirect('my_profile')
+
+        elif action == 'delete':
+            Reservation.objects.filter(user=user).delete()
+            HotelReview.objects.filter(reservation__user=user).delete()
+            user.delete()
+            return redirect('index')
+
+    if user.is_staff:
+        # Admin dashboard
+        today = now().date()
+        seven_days_ago = today - timedelta(days=6)
+
+        bookings_per_day = (
+            Reservation.objects
+            .filter(start_date__range=(seven_days_ago, today))
+            .extra({'day': "date(start_date)"})
+            .values('day')
+            .annotate(count=Count('id'))
+            .order_by('day')
+        )
+
+        top_hotels = (
+            Hotel.objects.annotate(avg_rating=Avg('reservation__hotelreview__rating'))
+            .order_by('-avg_rating')[:5]
+        )
+
+        reviews_per_day = (
+            HotelReview.objects
+            .filter(date_posted__date__range=(seven_days_ago, today))
+            .extra({'day': "date(date_posted)"})
+            .values('day')
+            .annotate(count=Count('id'))
+            .order_by('day')
+        )
+
+        context.update({
+            'bookings_per_day': bookings_per_day,
+            'top_hotels': top_hotels,
+            'reviews_per_day': reviews_per_day,
+            'is_admin': True,
+        })
+    else:
+        # User dashboard
+        reservations = Reservation.objects.filter(user=user)
+        total_spent = reservations.aggregate(total=Sum('total_price'))['total'] or 0
+        review_avg = HotelReview.objects.filter(reservation__user=user).aggregate(avg=Avg('rating'))['avg']
+
+        context.update({
+            'total_spent': total_spent,
+            'num_reservations': reservations.count(),
+            'average_rating': round(review_avg, 2) if review_avg else None,
+            'is_admin': False,
+        })
+
+    return render(request, 'booking/my_profile.html', context)
