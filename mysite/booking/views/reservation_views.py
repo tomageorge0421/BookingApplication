@@ -5,6 +5,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from ..models import Reservation, Hotel
 from django.contrib.auth import get_user_model
 from datetime import date
+from django.http import HttpResponseForbidden
 
 User = get_user_model()
 
@@ -141,4 +142,20 @@ def update_reservation_admin(request, reservation_id):
         'reservation': reservation,
         'users': users,
         'hotels': hotels
+    })
+
+@login_required
+def cancel_reservation_view(request, reservation_id):
+    reservation = get_object_or_404(Reservation, id=reservation_id, user=request.user)
+    days_before_checkin = (reservation.start_date - date.today()).days
+
+    if days_before_checkin < 2:
+        return HttpResponseForbidden("Rezervarea nu mai poate fi anulată cu mai puțin de 2 zile înainte.")
+
+    if request.method == 'POST':
+        reservation.delete()
+        return redirect('my_reservations')
+
+    return render(request, 'booking/cancel_reservation_confirm.html', {
+        'reservation': reservation
     })

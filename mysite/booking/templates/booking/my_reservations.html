@@ -43,13 +43,18 @@
                                     <td>{{ r.end_date|date:"d M Y" }}</td>
                                     <td>
                                         <span class="badge bg-success">{{ r.total_price }} RON</span><br>
-                                        {% if today > r.end_date and not r.hotelreview %}
-                                            <a href="{% url 'leave_review' r.id %}" class="btn btn-sm btn-outline-primary mt-2">
-                                                Lasă un review
-                                            </a>
-                                        {% endif %}
-
+                                            {% if today > r.end_date and not r.hotelreview %}
+                                                <a href="{% url 'leave_review' r.id %}" class="btn btn-sm btn-outline-primary mt-2">
+                                                    Lasă un review
+                                                </a>
+                                            {% endif %}
+                                            {% if r.start_date > today and r.start_date|date:"U"|add:"-172800"|floatformat:0 > today|date:"U"|floatformat:0 %}
+                                                <a href="{% url 'cancel_reservation' r.id %}" class="btn btn-sm btn-outline-danger mt-2">
+                                                    Anulează rezervarea
+                                                </a>
+                                            {% endif %}
                                     </td>
+
                                 </tr>
                                 {% endfor %}
                             </tbody>

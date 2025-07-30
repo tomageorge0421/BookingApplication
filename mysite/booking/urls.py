@@ -3,7 +3,7 @@ from django.urls import path
 
 from . import views
 
-from .views import create_reservation_admin, all_reservations_view
+from .views import create_reservation_admin, all_reservations_view, cancel_reservation_view
 
 from django.contrib.auth.views import LogoutView
 
@@ -36,4 +36,6 @@ urlpatterns = [
     path('reviews/update_own/<int:review_id>/', update_own_review, name='update_own_review'),
     path('reviews/delete_own/<int:review_id>/', delete_own_review, name='delete_own_review'),
     path('my_profile/', my_profile_view, name='my_profile'),
+    path('cancel-reservation/<int:reservation_id>/', cancel_reservation_view, name='cancel_reservation'),
+
 ]
