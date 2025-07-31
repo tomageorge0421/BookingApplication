@@ -53,6 +53,7 @@ def register_details_view(request):
         user.first_name = first_name
         user.last_name = last_name
         user.email = email
+        user.profile_picture_url = request.POST.get('profile_picture_url')
         user.save()
 
         return redirect('index')  # sau redirect unde vrei
@@ -73,6 +74,7 @@ def my_profile_view(request):
             user.email = request.POST.get('email')
             user.age = request.POST.get('age')
             user.profession = request.POST.get('profession')
+            user.profile_picture_url = request.POST.get('profile_picture_url')
             user.save()
             return redirect('my_profile')
 

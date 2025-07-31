@@ -45,6 +45,9 @@
         <p><strong>Tipuri disponibile:</strong> {{ hotel.available_types }}</p>
         <p><strong>Preț pe noapte:</strong> {{ hotel.price_per_night }} RON</p>
         <p><strong>Rating mediu:</strong> {{ avg_rating|default:"Fără rating" }}</p>
+        {% if hotel.photo_url %}
+            <img src="{{ hotel.photo_url }}" alt="Poză hotel" style="width: 400px; height: auto; border-radius: 10px; margin-bottom: 15px;">
+        {% endif %}
     </div>
 
     {% if not hotel.is_active %}
@@ -79,22 +82,24 @@
         <h3>Recenzii</h3>
         {% if reviews %}
             {% for review in reviews %}
-                <div class="review">
-                    <strong>{{ review.user.username }}</strong> - {{ review.rating }}/5<br>
-                    <em>{{ review.date_posted|date:"d M Y H:i" }}</em>
-                    <p>{{ review.text }}</p>
-
-                    {% if request.user.is_staff or review.user == request.user %}
-                        {% if request.user.is_staff %}
-                            <a href="{% url 'update_review' review.id %}" style="color: #ffc107; margin-right: 10px;">Modifică review</a>
-                            <a href="{% url 'delete_review' review.id %}" style="color: #dc3545;" onclick="return confirm('Ești sigur că vrei să ștergi această recenzie?');">Șterge review</a>
-                        {% else %}
-                            <a href="{% url 'update_own_review' review.id %}" style="color: #ffc107; margin-right: 10px;">Editează</a>
-                            <a href="{% url 'delete_own_review' review.id %}" style="color: #dc3545;" onclick="return confirm('Ești sigur că vrei să ștergi această recenzie?');">Șterge</a>
-                        {% endif %}
+                <div class="review" style="display: flex; align-items: center; gap: 10px;">
+                    {% if review.user.profile_picture_url %}
+                        <img src="{{ review.user.profile_picture_url }}" alt="Poză profil" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
                     {% endif %}
-
-
+                <div>
+                        <strong>{{ review.user.username }}</strong> - {{ review.rating }}/5<br>
+                        <em>{{ review.date_posted|date:"d M Y H:i" }}</em>
+                        <p>{{ review.text }}</p>   
+                        {% if request.user.is_staff or review.user == request.user %}
+                            {% if request.user.is_staff %}
+                                <a href="{% url 'update_review' review.id %}" style="color: #ffc107; margin-right: 10px;">Modifică review</a>
+                                <a href="{% url 'delete_review' review.id %}" style="color: #dc3545;" onclick="return confirm('Ești sigur că vrei să ștergi această recenzie?');">Șterge review</a>
+                            {% else %}
+                                <a href="{% url 'update_own_review' review.id %}" style="color: #ffc107; margin-right: 10px;">Editează</a>
+                                <a href="{% url 'delete_own_review' review.id %}" style="color: #dc3545;" onclick="return confirm('Ești sigur că vrei să ștergi această recenzie?');">Șterge</a>
+                            {% endif %}
+                        {% endif %}
+                    </div>
                 </div>
             {% endfor %}
         {% else %}

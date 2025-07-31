@@ -16,6 +16,7 @@ class Hotel(models.Model):
     available_types = models.CharField(max_length=3, choices=HOTEL_TYPES)
     price_per_night = models.DecimalField(max_digits=7, decimal_places=2)
     is_active = models.BooleanField(default=True)
+    photo_url = models.URLField(blank=True, null=True)
 
     def __str__(self):
         return f"{self.name} - {self.location}"

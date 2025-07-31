@@ -40,8 +40,16 @@
             <input type="number" step="0.01" name="price_per_night" class="form-control" required>
         </div>
 
-        <button type="submit" class="btn btn-success">Crează hotel</button>
-        <a href="{% url 'hotels' %}" class="btn btn-secondary">Renunță</a>
+        <div class="mb-3">
+            <label for="photo_url">Link poză hotel</label>
+            <input type="url" name="photo_url" value="{{ form.photo_url.value }}" class="form-control">
+        </div>
+
+        <div class="mb-3">
+            <button type="submit" class="btn btn-success">Crează hotel</button>
+            <a href="{% url 'hotels' %}" class="btn btn-secondary">Renunță</a>
+        </div>
+        
     </form>
 </div>
 </body>

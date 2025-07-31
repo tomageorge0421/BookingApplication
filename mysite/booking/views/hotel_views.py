@@ -83,6 +83,7 @@ def create_hotel_view(request):
         description = request.POST['description']
         available_types = request.POST['available_types']
         price_per_night = request.POST['price_per_night']
+        photo_url = request.POST['photo_url']
 
         if not all([name, location, description, available_types, price_per_night]):
             error = "Toate câmpurile sunt obligatorii."
@@ -92,7 +93,8 @@ def create_hotel_view(request):
                 location=location,
                 description=description,
                 available_types=available_types,
-                price_per_night=price_per_night
+                price_per_night=price_per_night,
+                photo_url=photo_url
             )
             return redirect('hotels')
 

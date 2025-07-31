@@ -109,6 +109,18 @@
                 <input type="text" name="profession" value="{{ user.profession }}">
             </label>
 
+            <label>Poza de profil (URL):
+                <input type="url" name="profile_picture_url" value="{{ user.profile_picture_url }}">
+            </label>
+
+            {% if user.profile_picture_url %}
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <img src="{{ user.profile_picture_url }}" alt="Poza de profil" style="width:150px; height:150px; object-fit:cover; border-radius: 50%;">
+                    <p style="font-size: 0.9em; color: #888;">{{ user.profile_picture_url }}</p>
+                </div>
+            {% endif %}
+
+
             <div class="buttons">
                 <button type="submit" name="action" value="update" class="update-btn">Update Details</button>
                 <button type="submit" name="action" value="delete" class="delete-btn" onclick="return confirm('Sigur vrei să îți ștergi contul? Aceasta acțiune este ireversibilă.');">Delete My Profile</button>
