@@ -17,9 +17,8 @@
             gap: 20px;
             min-height: 100vh;
         }
-        /* Stânga: lista hotelurilor */
         .left-column {
-            flex: 4; /* 80% */
+            flex: 4;
             display: flex;
             flex-direction: column;
             gap: 15px;
@@ -31,9 +30,8 @@
             box-shadow: 0 0 8px #ccc;
             text-align: left;
         }
-        /* Dreapta: butoane + filter */
         .right-column {
-            flex: 1; /* 20% */
+            flex: 1;
             background: white;
             padding: 15px;
             border-radius: 8px;
@@ -43,25 +41,43 @@
             flex-direction: column;
             align-items: stretch;
         }
+
+        .filter-buttons-wrapper {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 8px #ccc;
+            padding: 18px 10px 12px 10px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+        }
         .filter-buttons {
             display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            margin-bottom: 15px;
+            gap: 12px;
         }
-        .filter-buttons button {
-            width: 100px;
-            padding: 8px;
-            font-size: 14px;
+        .filter-btn {
+            width: 120px;
+            padding: 10px;
+            font-size: 15px;
+            font-weight: 500;
             cursor: pointer;
             border: none;
             border-radius: 5px;
             background-color: #4CAF50;
             color: white;
+            transition: background 0.2s, box-shadow 0.2s;
+            box-shadow: 0 2px 3px #eee;
         }
-        .filter-buttons button:hover {
+        .filter-btn:hover {
             background-color: #45a049;
         }
+
+        .filter-buttons form {
+            margin: 0;
+            display: inline;
+        }
+
         #filter-form {
             display: none;
             flex-direction: column;
@@ -116,11 +132,16 @@
     </div>
 
     <div class="right-column">
-        <div class="filter-buttons">
-            <button onclick="toggleFilter()">Filtrare</button>
-            <form method="get" style="display:inline;">
-                <button type="submit">Reset filters</button>
-            </form>
+        <!-- Nou: wrapper filtrare + reset -->
+        <div class="filter-buttons-wrapper">
+            <div class="filter-buttons">
+                <form method="get" style="display:inline;">
+                    <button class="filter-btn" type="button" onclick="toggleFilter()">Filtrare</button>
+                </form>
+                <form method="get" style="display:inline;">
+                    <button class="filter-btn" type="submit">Reset filters</button>
+                </form>
+            </div>
         </div>
 
         <form method="get" id="filter-form">
@@ -149,9 +170,7 @@
                 <i class="fas fa-list me-2"></i> Toate rezervările
             </a>
         </div>
-
         {% endif %}
-
 
         <div class="mt-4 d-grid">
             <a href="{% url 'my_reservations' %}" class="btn btn-primary btn-lg">
@@ -167,12 +186,7 @@
                 <i class="fas fa-sign-out-alt"></i> Logout
             </button>
         </form>
-
     </div>
-
-    
-
-
 </div>
 
 <script>
@@ -185,7 +199,6 @@
         }
     }
 
-    // Dacă avem query params, arată filtrul la încărcare
     window.onload = function() {
         const params = new URLSearchParams(window.location.search);
         if (params.toString()) {
@@ -193,6 +206,5 @@
         }
     }
 </script>
-
 </body>
 </html>
