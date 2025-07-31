@@ -110,6 +110,15 @@
 </head>
 <body>
 
+    {% if messages %}
+        <ul>
+        {% for message in messages %}
+            <li style="color: red; font-weight: bold;">{{ message }}</li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+
+
 <div class="container">
 
     <div class="left-column">

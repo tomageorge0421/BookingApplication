@@ -6,6 +6,7 @@ from ..models import Reservation, Hotel
 from django.contrib.auth import get_user_model
 from datetime import date
 from django.http import HttpResponseForbidden
+from django.contrib import messages
 
 User = get_user_model()
 
@@ -98,8 +99,13 @@ def create_reservation_admin(request):
 @staff_member_required
 def delete_reservation_admin(request, reservation_id):
     reservation = get_object_or_404(Reservation, id=reservation_id)
+    user = reservation.user
+
     if request.method == 'POST':
         reservation.delete()
+        user.reservation_deleted_notification = True
+        user.save()
+        messages.success(request, "Rezervarea a fost ștearsă.")
         return redirect('admin_reservations')
     return render(request, 'booking/delete_reservation_confirm.html', {
         'reservation': reservation

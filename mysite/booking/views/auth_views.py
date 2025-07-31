@@ -7,6 +7,8 @@ from booking.models import Reservation, HotelReview, Hotel
 from django.db.models import Avg, Count, Sum
 from django.utils.timezone import now
 from datetime import timedelta
+from django.contrib import messages
+
 
 User = get_user_model()
 
@@ -21,6 +23,10 @@ def login_view(request):
         user = authenticate(request, username=username, password=password)
         if user:
             auth_login(request, user)
+            if user.reservation_deleted_notification:
+                messages.warning(request, "O rezervare ți-a fost ștearsă de către un administrator.")
+                user.reservation_deleted_notification = False  # Resetăm flagul
+                user.save()
             return redirect('hotels')  # sau către pagina principală reală
         else:
             error = "Username sau parolă incorectă."
