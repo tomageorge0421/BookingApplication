@@ -104,6 +104,16 @@
         {% if hotel.photo_url %}
             <img src="{{ hotel.photo_url }}" alt="Poză hotel" style="width: 400px; height: auto; border-radius: 10px; margin-bottom: 15px;">
         {% endif %}
+        <p><strong>Facilități:</strong>
+            {% if hotel.amenities.all %}
+                {% for amenity in hotel.amenities.all %}
+                    {{ amenity.slug }}{% if not forloop.last %}, {% endif %}
+                {% endfor %}
+            {% else %}
+                Nicio facilitate disponibilă.
+            {% endif %}
+        </p>
+
     </div>
 
     {% if not hotel.is_active %}

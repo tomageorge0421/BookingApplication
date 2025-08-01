@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import CustomUser, Hotel, HotelReview, Reservation, ReviewVote
+from .models import CustomUser, Hotel, HotelReview, Reservation, ReviewVote, Amenity
 
 class CustomUserAdmin(UserAdmin):
     model = CustomUser
@@ -27,8 +27,12 @@ class ReviewVoteAdmin(admin.ModelAdmin):
     list_display = ('user', 'review', 'value')
     list_filter = ('value',)
 
+class AmenityAdmin(admin.ModelAdmin):
+    list_display = ('name', 'slug')
+
 admin.site.register(CustomUser, CustomUserAdmin)
 admin.site.register(Hotel, HotelAdmin)
 admin.site.register(HotelReview)
 admin.site.register(Reservation, ReservationAdmin)
 admin.site.register(ReviewVote, ReviewVoteAdmin)
+admin.site.register(Amenity, AmenityAdmin)

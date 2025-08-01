@@ -12,7 +12,7 @@ from django.db.models.functions import Coalesce, TruncDate
 from django.shortcuts import render, get_object_or_404
 from django.db.models import Avg, Value, Sum, IntegerField, FloatField
 from django.db.models.functions import Coalesce
-from ..models import Hotel, HotelReview
+from ..models import Hotel, HotelReview, Amenity
 from ..models.review_vote import ReviewVote
 
 
@@ -24,6 +24,7 @@ def hotels_view(request):
     room_type = request.GET.get('room_type')
     max_price = request.GET.get('max_price')
     min_rating = request.GET.get('min_rating')
+    amenities = request.GET.getlist('amenities')  # aici este ok, suntem în view
 
     if location:
         hotels = hotels.filter(location__icontains=location)
@@ -33,8 +34,23 @@ def hotels_view(request):
         hotels = hotels.filter(price_per_night__lte=max_price)
     if min_rating:
         hotels = hotels.filter(avg_rating__gte=min_rating)
+    if amenities:
+        for amenity_slug in amenities:
+            hotels = hotels.filter(amenities__slug=amenity_slug)
+        hotels = hotels.distinct()
+    
+    all_amenities = Amenity.objects.all()  # preluăm toate facilitățile pentru dropdown
 
-    return render(request, 'booking/hotels.html', {'hotels': hotels})
+    # trimiți lista amenity_ids la template
+    return render(request, 'booking/hotels.html', {
+        'hotels': hotels,
+        'selected_amenities': amenities,  # adaugă aici
+        'all_amenities': all_amenities,  # adaugă aici
+        'location': location,
+        'room_type': room_type,
+        'max_price': max_price,
+        'min_rating': min_rating,
+    })
 
 @login_required
 def hotel_detail_view(request, hotel_id):
@@ -85,18 +101,45 @@ def update_hotel_view(request, hotel_id):
     hotel = get_object_or_404(Hotel, id=hotel_id)
     error = None
 
+    facilities = Amenity.objects.all()  # preluăm toate facilitățile pentru checkbox-uri
+
     if request.method == 'POST':
         hotel.name = request.POST['name']
         hotel.location = request.POST['location']
         hotel.description = request.POST['description']
         hotel.available_types = request.POST['available_types']
         hotel.price_per_night = request.POST['price_per_night']
-        hotel.save()
-        return redirect('hotel_detail', hotel_id=hotel.id)
+
+        # Preluăm facilitățile selectate din formular (lista de string-uri)
+        amenity_ids = request.POST.getlist('amenities')
+
+        # Facilitate nouă
+        new_amenity_name = request.POST.get('new_amenity', '').strip()
+
+        try:
+            hotel.save()
+
+            # Dacă există facilitate nouă, o adăugăm în baza de date și o adăugăm la lista de facilități
+            if new_amenity_name:
+                new_amenity, created = Amenity.objects.get_or_create(name=new_amenity_name)
+                amenity_ids.append(str(new_amenity.id))
+
+            # Setăm facilitățile selectate pentru hotel (inclusiv cea nouă)
+            if amenity_ids:
+                hotel.amenities.set(Amenity.objects.filter(id__in=amenity_ids))
+            else:
+                # Dacă nu sunt facilități selectate, golim lista
+                hotel.amenities.clear()
+
+            return redirect('hotel_detail', hotel_id=hotel.id)
+
+        except Exception as e:
+            error = f"Eroare la actualizarea hotelului: {e}"
 
     return render(request, 'booking/update_hotel.html', {
         'hotel': hotel,
-        'error': error
+        'error': error,
+        'facilities': facilities,
     })
 
 @staff_member_required
@@ -117,31 +160,55 @@ def delete_hotel_view(request, hotel_id):
 def create_hotel_view(request):
     error = None
 
+    facilities = Amenity.objects.all()  # toate facilitățile pentru dropdown / checkbox
+
     if request.method == 'POST':
         name = request.POST['name']
         location = request.POST['location']
         description = request.POST['description']
         available_types = request.POST['available_types']
         price_per_night = request.POST['price_per_night']
-        photo_url = request.POST['photo_url']
+        photo_url = request.POST.get('photo_url', '').strip()
+
+        # lista facilităților selectate
+        amenity_ids = request.POST.getlist('amenities')  # string list cu id-uri facilități
+
+        # facilitate nouă adăugată manual
+        new_amenity_name = request.POST.get('new_amenity', '').strip()
 
         if not all([name, location, description, available_types, price_per_night]):
             error = "Toate câmpurile sunt obligatorii."
         else:
-            Hotel.objects.create(
-                name=name,
-                location=location,
-                description=description,
-                available_types=available_types,
-                price_per_night=price_per_night,
-                photo_url=photo_url
-            )
-            return redirect('hotels')
+            try:
+                hotel = Hotel.objects.create(
+                    name=name,
+                    location=location,
+                    description=description,
+                    available_types=available_types,
+                    price_per_night=price_per_night,
+                    photo_url=photo_url if photo_url else None
+                )
+
+                # Dacă există facilitate nouă, o adăugăm în DB și în lista de facilități
+                if new_amenity_name:
+                    new_amenity, created = Amenity.objects.get_or_create(name=new_amenity_name)
+                    amenity_ids.append(str(new_amenity.id))
+
+                # Setăm facilitățile pentru hotel
+                if amenity_ids:
+                    hotel.amenities.set(Amenity.objects.filter(id__in=amenity_ids))
+
+                hotel.save()
+                return redirect('hotels')
+
+            except Exception as e:
+                error = f"Eroare la creare hotel: {e}"
 
     return render(request, 'booking/create_hotel.html', {
         'error': error,
-        'hotel':Hotel()
-        })
+        'hotel': Hotel(),
+        'facilities': facilities
+    })
 
 @staff_member_required
 def make_hotel_active_view(request, hotel_id):

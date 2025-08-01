@@ -1,6 +1,7 @@
 from django.db import models
 from django.db.models import Avg
 from booking.models.review import HotelReview
+from .amenity import Amenity
 
 class Hotel(models.Model):
     HOTEL_TYPES = [
@@ -17,6 +18,7 @@ class Hotel(models.Model):
     price_per_night = models.DecimalField(max_digits=7, decimal_places=2)
     is_active = models.BooleanField(default=True)
     photo_url = models.URLField(blank=True, null=True)
+    amenities = models.ManyToManyField(Amenity, blank=True, related_name='hotels')
 
     def __str__(self):
         return f"{self.name} - {self.location}"

@@ -46,6 +46,25 @@
         </div>
 
         <div class="mb-3">
+            <label class="form-label">Facilități disponibile</label>
+                <div>
+                    {% for facility in facilities %}
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" name="amenities" value="{{ facility.id }}" id="facility{{ facility.id }}">
+                            <label class="form-check-label" for="facility{{ facility.id }}">{{ facility.name }}</label>
+                        </div>
+                        {% empty %}
+                        <p>Nu există facilități disponibile.</p>
+                    {% endfor %}
+                </div>
+        </div>
+
+        <div class="mb-3">
+            <label for="new_amenity" class="form-label">Adaugă o facilitate nouă</label>
+            <input type="text" class="form-control" name="new_amenity" id="new_amenity" placeholder="Ex: Saună, sală fitness, etc.">
+        </div>
+
+        <div class="mb-3">
             <button type="submit" class="btn btn-success">Crează hotel</button>
             <a href="{% url 'hotels' %}" class="btn btn-secondary">Renunță</a>
         </div>
