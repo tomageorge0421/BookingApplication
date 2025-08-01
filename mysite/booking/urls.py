@@ -11,6 +11,7 @@ from .views.review_views import update_own_review, delete_own_review
 
 from .views.auth_views import my_profile_view
 from booking.views.hotel_views import make_hotel_active_view
+from .views.review_vote_views import vote_review
 
 urlpatterns = [
     path("", views.index, name="index"),
@@ -38,4 +39,5 @@ urlpatterns = [
     path('my_profile/', my_profile_view, name='my_profile'),
     path('cancel-reservation/<int:reservation_id>/', cancel_reservation_view, name='cancel_reservation'),
     path('hotels/<int:hotel_id>/activate/', make_hotel_active_view, name='make_hotel_active'),
+    path('reviews/<int:review_id>/vote/', vote_review, name='vote_review'),
 ]

@@ -34,6 +34,62 @@
             text-decoration: none;
             color: #2196F3;
         }
+
+        body {
+        font-family: Arial, sans-serif;
+        background: #f8f8f8;
+        padding: 20px;
+        }
+        .hotel-box {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px #ccc;
+            margin-bottom: 30px;
+        }
+        .reviews-box {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px #ccc;
+        }
+        .review {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            background: #fafafa;
+            display: block; /* să fie unul sub altul */
+        }
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .review-meta {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .vote-controls {
+            margin-top: 10px;
+            display: flex;
+            gap: 6px;
+        }
+        .back-link-wrapper {
+            margin-top: 30px;
+            display: block;
+            clear: both;
+        }
+        .review strong {
+            color: #333;
+        }
+        a {
+            text-decoration: none;
+            color: #2196F3;
+        }
     </style>
 </head>
 <body>
@@ -82,24 +138,60 @@
         <h3>Recenzii</h3>
         {% if reviews %}
             {% for review in reviews %}
-                <div class="review" style="display: flex; align-items: center; gap: 10px;">
-                    {% if review.user.profile_picture_url %}
-                        <img src="{{ review.user.profile_picture_url }}" alt="Poză profil" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
-                    {% endif %}
-                <div>
-                        <strong>{{ review.user.username }}</strong> - {{ review.rating }}/5<br>
-                        <em>{{ review.date_posted|date:"d M Y H:i" }}</em>
-                        <p>{{ review.text }}</p>   
-                        {% if request.user.is_staff or review.user == request.user %}
-                            {% if request.user.is_staff %}
-                                <a href="{% url 'update_review' review.id %}" style="color: #ffc107; margin-right: 10px;">Modifică review</a>
-                                <a href="{% url 'delete_review' review.id %}" style="color: #dc3545;" onclick="return confirm('Ești sigur că vrei să ștergi această recenzie?');">Șterge review</a>
-                            {% else %}
-                                <a href="{% url 'update_own_review' review.id %}" style="color: #ffc107; margin-right: 10px;">Editează</a>
-                                <a href="{% url 'delete_own_review' review.id %}" style="color: #dc3545;" onclick="return confirm('Ești sigur că vrei să ștergi această recenzie?');">Șterge</a>
+                <div class="review" data-review-id="{{ review.id }}">
+                    <div class="review-header">
+                        <div class="review-meta">
+                            {% if review.user.profile_picture_url %}
+                                <img src="{{ review.user.profile_picture_url }}" alt="Poză profil" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
                             {% endif %}
-                        {% endif %}
+                            <div>
+                                <strong>{{ review.user.username }}</strong> - {{ review.rating }}/5<br>
+                                <em>{{ review.date_posted|date:"d M Y H:i" }}</em>
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div>
+                                <span style="font-weight: bold;">Scor:</span> 
+                                    <span class="review-score">
+                                        {% if review.annotated_score is not None %}
+                                            {{ review.annotated_score }}
+                                        {% else %}
+                                            {{ review.score }}
+                                        {% endif %}
+                                    </span>
+                            </div>
+                                <div style="font-size: 0.9em; color: #555;">
+                                    ↑ <span class="review-upvotes">{{ review.upvotes }}</span>
+                                    ↓ <span class="review-downvotes">{{ review.downvotes }}</span>
+                                </div>
+                        </div>
                     </div>
+                    <p style="margin-top: 10px;">{{ review.text }}</p>
+                        <div style="margin-top:8px;">
+                            {% if request.user.is_staff or review.user == request.user %}
+                                {% if request.user.is_staff %}
+                                    <a href="{% url 'update_review' review.id %}" style="color: #ffc107; margin-right: 10px;">Modifică review</a>
+                                    <a href="{% url 'delete_review' review.id %}" style="color: #dc3545;" onclick="return confirm('Ești sigur că vrei să ștergi această recenzie?');">Șterge review</a>
+                                {% else %}
+                                    <a href="{% url 'update_own_review' review.id %}" style="color: #ffc107; margin-right: 10px;">Editează</a>
+                                    <a href="{% url 'delete_own_review' review.id %}" style="color: #dc3545;" onclick="return confirm('Ești sigur că vrei să ștergi această recenzie?');">Șterge</a>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                    {% if review.user != request.user and review.id not in voted_review_ids %}
+                        <div class="vote-controls">
+                            <form method="post" action="{% url 'vote_review' review.id %}" class="vote-form">
+                                {% csrf_token %}
+                                <input type="hidden" name="vote" value="up">
+                                <button type="submit" class="vote-btn upvote-btn">Upvote</button>
+                            </form>
+                            <form method="post" action="{% url 'vote_review' review.id %}" class="vote-form">
+                                {% csrf_token %}
+                                <input type="hidden" name="vote" value="down">
+                                <button type="submit" class="vote-btn downvote-btn">Downvote</button>
+                            </form>
+                        </div>
+                    {% endif %}
                 </div>
             {% endfor %}
         {% else %}
@@ -107,8 +199,73 @@
         {% endif %}
     </div>
 
-    <br>
-    <a href="{% url 'hotels' %}">← Înapoi la listă</a>
+    <script>
+// helper pentru CSRF (Django docs)
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (const c of cookies) {
+            const cookie = c.trim();
+            if (cookie.startsWith(name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+const csrftoken = getCookie('csrftoken');
+
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.vote-controls').forEach(container => {
+        const reviewDiv = container.closest('[data-review-id]');
+        const reviewId = reviewDiv.dataset.reviewId;
+
+        // delegate upvote/downvote buttons
+        container.querySelectorAll('.vote-form').forEach(form => {
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const formData = new FormData(form);
+                const voteType = formData.get('vote'); // "up" / "down"
+
+                try {
+                    const resp = await fetch(form.action, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': csrftoken,
+                            'X-Requested-With': 'XMLHttpRequest',
+                        },
+                        body: formData,
+                    });
+                    if (!resp.ok) {
+                        console.warn('Vot eșuat', await resp.text());
+                        return;
+                    }
+                    const data = await resp.json();
+
+                    // actualizează UI: scor / up / down
+                    reviewDiv.querySelector('.review-score').textContent = data.score;
+                    reviewDiv.querySelector('.review-upvotes').textContent = data.upvotes;
+                    reviewDiv.querySelector('.review-downvotes').textContent = data.downvotes;
+
+                    // ascunde controlul (nu se mai poate vota repetat vizual)
+                    const voteControls = reviewDiv.querySelector('.vote-controls');
+                    if (voteControls) voteControls.style.display = 'none';
+                } catch (err) {
+                    console.error('Eroare la votare:', err);
+                }
+            });
+        });
+    });
+});
+</script>
+
+
+    <div class="back-link-wrapper">
+        <a href="{% url 'hotels' %}">← Înapoi la listă</a>
+    </div>
+
 
 </body>
 </html>

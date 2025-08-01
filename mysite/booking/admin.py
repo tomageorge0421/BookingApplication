@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import CustomUser, Hotel, HotelReview, Reservation
+from .models import CustomUser, Hotel, HotelReview, Reservation, ReviewVote
 
 class CustomUserAdmin(UserAdmin):
     model = CustomUser
@@ -23,8 +23,12 @@ class ReservationAdmin(admin.ModelAdmin):
     list_display = ('user', 'hotel', 'room_type', 'start_date', 'end_date', 'total_price')
     readonly_fields = ('room_type', 'total_price')  # doar ca să le vezi
 
+class ReviewVoteAdmin(admin.ModelAdmin):
+    list_display = ('user', 'review', 'value')
+    list_filter = ('value',)
 
 admin.site.register(CustomUser, CustomUserAdmin)
 admin.site.register(Hotel, HotelAdmin)
 admin.site.register(HotelReview)
 admin.site.register(Reservation, ReservationAdmin)
+admin.site.register(ReviewVote, ReviewVoteAdmin)

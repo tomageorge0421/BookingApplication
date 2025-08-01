@@ -1,10 +1,20 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.admin.views.decorators import staff_member_required
 from django.db.models import Avg
-from ..models import Hotel, HotelReview
+from ..models import Hotel, HotelReview, ReviewVote
 from datetime import date
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+
+from django.db.models import Value, Sum, Avg
+from django.db.models.functions import Coalesce, TruncDate
+
+from django.shortcuts import render, get_object_or_404
+from django.db.models import Avg, Value, Sum, IntegerField, FloatField
+from django.db.models.functions import Coalesce
+from ..models import Hotel, HotelReview
+from ..models.review_vote import ReviewVote
+
 
 @login_required
 def hotels_view(request):
@@ -26,18 +36,48 @@ def hotels_view(request):
 
     return render(request, 'booking/hotels.html', {'hotels': hotels})
 
-
 @login_required
 def hotel_detail_view(request, hotel_id):
-    hotel = Hotel.objects.get(id=hotel_id)
-    reviews = HotelReview.objects.filter(reservation__hotel=hotel).select_related('reservation__user').order_by('-date_posted')
-    avg_rating = reviews.aggregate(average=Avg('rating'))['average']
+    hotel = get_object_or_404(Hotel, id=hotel_id)
 
+    # Filtrare opțională: ?min_score=2
+    min_score = request.GET.get('min_score')
+    
+    reviews_qs = (
+        HotelReview.objects
+        .filter(reservation__hotel=hotel)
+        .select_related('reservation__user')
+        .annotate(annotated_score=Coalesce(Sum('votes__value'), Value(0), output_field=IntegerField()))
+    )
+
+    if min_score is not None:
+        try:
+            min_score_int = int(min_score)
+            reviews_qs = reviews_qs.filter(score__gte=min_score_int)
+        except ValueError:
+            pass
+
+    avg_rating = reviews_qs.aggregate(
+        average=Coalesce(Avg('rating'), Value(0), output_field=FloatField())
+    )['average']
+
+    reviews_qs = reviews_qs.order_by('-annotated_score', '-date_posted')
+
+    # Ce review-uri a votat userul curent pentru a ascunde butoanele
+    voted_review_ids = []
+    if request.user.is_authenticated:
+        voted_review_ids = list(
+            ReviewVote.objects.filter(
+                user=request.user,
+                review__reservation__hotel=hotel
+            ).values_list('review_id', flat=True)
+        )
 
     return render(request, 'booking/hotel_detail.html', {
         'hotel': hotel,
-        'reviews': reviews,
+        'reviews': reviews_qs,
         'avg_rating': avg_rating,
+        'voted_review_ids': voted_review_ids,
     })
 
 @staff_member_required

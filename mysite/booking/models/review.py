@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.db.models import Sum, Count, Q
 
 class HotelReview(models.Model):
     reservation = models.OneToOneField('booking.Reservation', on_delete=models.CASCADE, null=True, blank=True)
@@ -24,4 +25,20 @@ class HotelReview(models.Model):
         if self.reservation:
             return self.reservation.hotel
         return None
+    
+    @property
+    def score(self):
+        agg = self.votes.aggregate(total=Sum('value'))
+        return agg['total'] or 0  # upvotes minus downvotes
+
+    @property
+    def upvotes(self):
+        from booking.models.review_vote import ReviewVote
+        return self.votes.filter(value=ReviewVote.UPVOTE).count()
+
+    @property
+    def downvotes(self):
+        from booking.models.review_vote import ReviewVote
+        return self.votes.filter(value=ReviewVote.DOWNVOTE).count()
+
 
