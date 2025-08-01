@@ -10,7 +10,7 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         print("Start trimitere remindere rezervari...")
         today = now().date()
-        target_date = today + timedelta(days=4)
+        target_date = today + timedelta(days=3)
         reservations = Reservation.objects.filter(start_date=target_date)
         print(f"Rezervari gasite: {reservations.count()}")
         for reservation in reservations:
