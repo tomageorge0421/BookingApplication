@@ -3,6 +3,16 @@
 <html>
 <head>
     <title>{{ hotel.name }}</title>
+
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+    <script
+        src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    ></script>
+
+
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -271,11 +281,41 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 
+    <div id="map" style="width: 100%; height: 300px; border: 1px solid #ccc; border-radius:8px; margin-top:15px;"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const map = L.map('map').setView([45.75, 21.23], 13); // fallback: Brașov
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(map);
+
+            const address = "{{ hotel.location|escapejs }}";
+            fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data && data[0]) {
+                        const lat = parseFloat(data[0].lat);
+                        const lon = parseFloat(data[0].lon);
+                        map.setView([lat, lon], 15);
+                        L.marker([lat, lon]).addTo(map)
+                        .bindPopup(`<strong>{{ hotel.name|escapejs }}</strong><br>${address}`)
+                        .openPopup();
+                    } else {
+                        console.warn("Nu s-a găsit locația pentru adresă:", address);
+                    }
+                })
+                .catch(err => {
+                    console.error("Eroare la geocodare:", err);
+                });
+        });
+    </script>
 
     <div class="back-link-wrapper">
         <a href="{% url 'hotels' %}">← Înapoi la listă</a>
     </div>
-
 
 </body>
 </html>
