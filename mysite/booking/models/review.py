@@ -18,7 +18,7 @@ class HotelReview(models.Model):
     def user(self):
         if self.reservation:
             return self.reservation.user
-        return None  # sau poți returna un string, ex: "Utilizator necunoscut"
+        return None  
 
     @property
     def hotel(self):
@@ -29,7 +29,7 @@ class HotelReview(models.Model):
     @property
     def score(self):
         agg = self.votes.aggregate(total=Sum('value'))
-        return agg['total'] or 0  # upvotes minus downvotes
+        return agg['total'] or 0  
 
     @property
     def upvotes(self):

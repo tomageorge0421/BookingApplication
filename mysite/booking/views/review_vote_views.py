@@ -15,7 +15,7 @@ def vote_review(request, review_id):
     if review.user == user:
         return HttpResponseForbidden("Nu poți vota propriul review.")
 
-    vote_type = request.POST.get('vote')  # expected 'up' or 'down'
+    vote_type = request.POST.get('vote')  
     if vote_type not in ['up', 'down']:
         return JsonResponse({'error': 'Vote invalid'}, status=400)
 
@@ -24,14 +24,11 @@ def vote_review(request, review_id):
     vote_obj, created = ReviewVote.objects.get_or_create(user=user, review=review, defaults={'value': value})
     if not created:
         if vote_obj.value == value:
-            # dacă dă din nou același vot, îl putem elimina (toggle) sau ignora; alegem toggle: ștergem
             vote_obj.delete()
         else:
-            # schimbă votul (up -> down sau invers)
             vote_obj.value = value
             vote_obj.save()
 
-    # răspuns poate fi redirecționat sau JSON pentru AJAX
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         return JsonResponse({
             'score': review.score,

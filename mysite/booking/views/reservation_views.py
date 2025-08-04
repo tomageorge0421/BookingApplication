@@ -76,7 +76,7 @@ def create_reservation_admin(request):
         hotel = Hotel.objects.get(id=hotel_id)
 
         nights = (end_date - start_date).days
-        room_type = hotel.available_types  # presupunem că e un string (ex: "1P")
+        room_type = hotel.available_types  
         total_price = nights * hotel.price_per_night
 
         Reservation.objects.create(

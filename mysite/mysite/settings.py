@@ -34,6 +34,12 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'georgetoma2104@gmail.com'
 EMAIL_HOST_PASSWORD = 'mthh hfhe vvyo cbpt'
 
+SITE_ID = 1
+
+LOGIN_REDIRECT_URL = '/booking/hotels/'
+ACCOUNT_LOGIN_REDIRECT_URL = '/booking/hotels/'
+
+
 
 # Application definition
 
@@ -45,6 +51,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',           
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
+    'allauth.socialaccount.providers.facebook',
 ]
 
 MIDDLEWARE = [
@@ -53,6 +65,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'allauth.account.middleware.AccountMiddleware',  # << adaugă asta
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -108,6 +121,19 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',  # login standard
+    'allauth.account.auth_backends.AuthenticationBackend',  # allauth
+]
+
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'AUTH_PARAMS': {
+            'prompt': 'select_account'
+        }
+    }
+}
 
 
 # Internationalization

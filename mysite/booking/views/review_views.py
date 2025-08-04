@@ -12,9 +12,7 @@ def leave_review_view(request, reservation_id):
         rating = int(request.POST['rating'])
         text = request.POST['text']
 
-        # Verificăm dacă rezervarea are deja review (OneToOneField garantează unicitate)
         if hasattr(reservation, 'hotelreview'):
-            # Dacă există deja review, redirecționăm spre rezervări
             return redirect('my_reservations')
 
         HotelReview.objects.create(

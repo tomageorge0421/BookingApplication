@@ -220,7 +220,7 @@
     </div>
 
     <script>
-// helper pentru CSRF (Django docs)
+
 function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
@@ -242,12 +242,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const reviewDiv = container.closest('[data-review-id]');
         const reviewId = reviewDiv.dataset.reviewId;
 
-        // delegate upvote/downvote buttons
+
         container.querySelectorAll('.vote-form').forEach(form => {
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const formData = new FormData(form);
-                const voteType = formData.get('vote'); // "up" / "down"
+                const voteType = formData.get('vote'); 
 
                 try {
                     const resp = await fetch(form.action, {
@@ -264,12 +264,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                     const data = await resp.json();
 
-                    // actualizează UI: scor / up / down
                     reviewDiv.querySelector('.review-score').textContent = data.score;
                     reviewDiv.querySelector('.review-upvotes').textContent = data.upvotes;
                     reviewDiv.querySelector('.review-downvotes').textContent = data.downvotes;
 
-                    // ascunde controlul (nu se mai poate vota repetat vizual)
                     const voteControls = reviewDiv.querySelector('.vote-controls');
                     if (voteControls) voteControls.style.display = 'none';
                 } catch (err) {
@@ -285,7 +283,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const map = L.map('map').setView([45.75, 21.23], 13); // fallback: Brașov
+            const map = L.map('map').setView([45.75, 21.23], 13); 
 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19,

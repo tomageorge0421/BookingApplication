@@ -16,7 +16,7 @@ class ReviewVote(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ("user", "review")  # un user un singur vot per review
+        unique_together = ("user", "review")  
 
     def __str__(self):
         return f"{self.user.username} voted {self.value} on review {self.review.id}"

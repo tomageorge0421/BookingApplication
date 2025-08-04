@@ -42,9 +42,14 @@ def register_view(request):
         if CustomUser.objects.filter(username=username).exists():
             error = "Username-ul este deja folosit."
         else:
-            user = CustomUser.objects.create_user(username=username, password=password, age=age, profession=profession)
-            auth_login(request, user)#asta cred ca se poate comenta/sterge
-            return redirect('register_details')
+            CustomUser.objects.create_user(username=username, password=password, age=age, profession=profession)
+            # îl autentifici (asta returnează un user cu backend setat)
+            user = authenticate(request, username=username, password=password)
+            if user:
+                auth_login(request, user)
+                return redirect('register_details')
+            else:
+                error = "Ceva nu a mers la autentificare după înregistrare."
     return render(request, 'booking/register.html', {'error': error})
 
 @login_required

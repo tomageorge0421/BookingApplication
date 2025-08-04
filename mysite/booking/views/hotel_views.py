@@ -24,7 +24,7 @@ def hotels_view(request):
     room_type = request.GET.get('room_type')
     max_price = request.GET.get('max_price')
     min_rating = request.GET.get('min_rating')
-    amenities = request.GET.getlist('amenities')  # aici este ok, suntem în view
+    amenities = request.GET.getlist('amenities')  
 
     if location:
         hotels = hotels.filter(location__icontains=location)
@@ -39,13 +39,13 @@ def hotels_view(request):
             hotels = hotels.filter(amenities__slug=amenity_slug)
         hotels = hotels.distinct()
     
-    all_amenities = Amenity.objects.all()  # preluăm toate facilitățile pentru dropdown
+    all_amenities = Amenity.objects.all()  
 
-    # trimiți lista amenity_ids la template
+    
     return render(request, 'booking/hotels.html', {
         'hotels': hotels,
-        'selected_amenities': amenities,  # adaugă aici
-        'all_amenities': all_amenities,  # adaugă aici
+        'selected_amenities': amenities,  
+        'all_amenities': all_amenities,  
         'location': location,
         'room_type': room_type,
         'max_price': max_price,
@@ -56,7 +56,6 @@ def hotels_view(request):
 def hotel_detail_view(request, hotel_id):
     hotel = get_object_or_404(Hotel, id=hotel_id)
 
-    # Filtrare opțională: ?min_score=2
     min_score = request.GET.get('min_score')
     
     reviews_qs = (
@@ -79,7 +78,6 @@ def hotel_detail_view(request, hotel_id):
 
     reviews_qs = reviews_qs.order_by('-annotated_score', '-date_posted')
 
-    # Ce review-uri a votat userul curent pentru a ascunde butoanele
     voted_review_ids = []
     if request.user.is_authenticated:
         voted_review_ids = list(
@@ -101,7 +99,7 @@ def update_hotel_view(request, hotel_id):
     hotel = get_object_or_404(Hotel, id=hotel_id)
     error = None
 
-    facilities = Amenity.objects.all()  # preluăm toate facilitățile pentru checkbox-uri
+    facilities = Amenity.objects.all()  
 
     if request.method == 'POST':
         hotel.name = request.POST['name']
@@ -110,25 +108,20 @@ def update_hotel_view(request, hotel_id):
         hotel.available_types = request.POST['available_types']
         hotel.price_per_night = request.POST['price_per_night']
 
-        # Preluăm facilitățile selectate din formular (lista de string-uri)
         amenity_ids = request.POST.getlist('amenities')
 
-        # Facilitate nouă
         new_amenity_name = request.POST.get('new_amenity', '').strip()
 
         try:
             hotel.save()
 
-            # Dacă există facilitate nouă, o adăugăm în baza de date și o adăugăm la lista de facilități
             if new_amenity_name:
                 new_amenity, created = Amenity.objects.get_or_create(name=new_amenity_name)
                 amenity_ids.append(str(new_amenity.id))
 
-            # Setăm facilitățile selectate pentru hotel (inclusiv cea nouă)
             if amenity_ids:
                 hotel.amenities.set(Amenity.objects.filter(id__in=amenity_ids))
             else:
-                # Dacă nu sunt facilități selectate, golim lista
                 hotel.amenities.clear()
 
             return redirect('hotel_detail', hotel_id=hotel.id)
@@ -149,7 +142,7 @@ def delete_hotel_view(request, hotel_id):
     has_active_reservations = hotel.reservation_set.filter(end_date__gte=date.today()).exists()
 
     if has_active_reservations:
-        hotel.is_active = False  # Mark it as inactive
+        hotel.is_active = False  
         hotel.save()
     else:
         hotel.delete()
@@ -160,7 +153,7 @@ def delete_hotel_view(request, hotel_id):
 def create_hotel_view(request):
     error = None
 
-    facilities = Amenity.objects.all()  # toate facilitățile pentru dropdown / checkbox
+    facilities = Amenity.objects.all()  
 
     if request.method == 'POST':
         name = request.POST['name']
@@ -170,10 +163,8 @@ def create_hotel_view(request):
         price_per_night = request.POST['price_per_night']
         photo_url = request.POST.get('photo_url', '').strip()
 
-        # lista facilităților selectate
-        amenity_ids = request.POST.getlist('amenities')  # string list cu id-uri facilități
+        amenity_ids = request.POST.getlist('amenities')  
 
-        # facilitate nouă adăugată manual
         new_amenity_name = request.POST.get('new_amenity', '').strip()
 
         if not all([name, location, description, available_types, price_per_night]):
@@ -189,12 +180,10 @@ def create_hotel_view(request):
                     photo_url=photo_url if photo_url else None
                 )
 
-                # Dacă există facilitate nouă, o adăugăm în DB și în lista de facilități
                 if new_amenity_name:
                     new_amenity, created = Amenity.objects.get_or_create(name=new_amenity_name)
                     amenity_ids.append(str(new_amenity.id))
 
-                # Setăm facilitățile pentru hotel
                 if amenity_ids:
                     hotel.amenities.set(Amenity.objects.filter(id__in=amenity_ids))
 
