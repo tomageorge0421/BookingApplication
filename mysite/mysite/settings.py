@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import socket
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,7 +26,15 @@ SECRET_KEY = 'django-insecure-pmfbe_u5a7%w^s&mgl**vyxlf1b$h&7l41+d*#5&@&_mn_x!d-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "127.0.0.1",
+    "localhost",
+    "a3ab73af3f85.ngrok-free.app"]
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://a3ab73af3f85.ngrok-free.app',
+    "http://127.0.0.1:8000",
+]
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
@@ -39,7 +48,15 @@ SITE_ID = 1
 LOGIN_REDIRECT_URL = '/booking/hotels/'
 ACCOUNT_LOGIN_REDIRECT_URL = '/booking/hotels/'
 
+SOCIAL_AUTH_FACEBOOK_KEY = '642114352255264'
+SOCIAL_AUTH_FACEBOOK_SECRET = '5dcb78fb7140f3f08a4d4b8b7495b098'
 
+ACCOUNT_DEFAULT_HTTP_PROTOCOL = "https"
+
+if "ngrok" in socket.gethostname():
+    ACCOUNT_DEFAULT_HTTP_PROTOCOL = "https"
+else:
+    ACCOUNT_DEFAULT_HTTP_PROTOCOL = "http"
 
 # Application definition
 
@@ -129,10 +146,37 @@ AUTHENTICATION_BACKENDS = [
 
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
+        'APP': {
+            'client_id': '1031063429270-ggtapiv6og66a6k6qeatgfeeda56uokn.apps.googleusercontent.com',
+            'secret': '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',
+            'key': ''
+        },
+        'SCOPE': [
+            'profile',
+            'email',
+        ],
         'AUTH_PARAMS': {
-            'prompt': 'select_account'
+            'access_type': 'online',
         }
-    }
+    },
+    'facebook': {
+        'METHOD': 'oauth2',
+        'SDK_URL': 'https://connect.facebook.net/en_US/sdk.js',
+        'SCOPE': ['email', 'public_profile'],
+        'AUTH_PARAMS': {'auth_type': 'reauthenticate'},
+        'INIT_PARAMS': {'cookie': True},
+        'FIELDS': [
+            'id',
+            'email',
+            'name',
+            'first_name',
+            'last_name',
+            'picture.type(large)'
+        ],
+        'EXCHANGE_TOKEN': True,
+        'VERIFIED_EMAIL': False,
+        'VERSION': 'v19.0',
+    },
 }
 
 

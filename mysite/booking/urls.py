@@ -40,5 +40,4 @@ urlpatterns = [
     path('cancel-reservation/<int:reservation_id>/', cancel_reservation_view, name='cancel_reservation'),
     path('hotels/<int:hotel_id>/activate/', make_hotel_active_view, name='make_hotel_active'),
     path('reviews/<int:review_id>/vote/', vote_review, name='vote_review'),
-    path('accounts/', include('allauth.urls')),
 ]

@@ -36,6 +36,37 @@
             height: 18px;
             display: inline-block;
         }
+
+        .facebook-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            border: 1px solid #1877F2;
+            border-radius: 6px;
+            background: white;
+            font-size: 14px;
+            font-weight: 500;
+            color: #1877F2;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background .2s, box-shadow .2s;
+            box-shadow: 0 1px 2px rgba(24,119,242,0.2);
+            margin-top: 12px;
+        }
+        .facebook-btn:hover {
+            background: #e7f0ff;
+            box-shadow: 0 2px 4px rgba(24,119,242,0.4);
+        }
+        .facebook-btn:active {
+            background: #d0e3ff;
+        }
+        .facebook-logo {
+            width: 18px;
+            height: 18px;
+            display: inline-block;
+        }
+
     </style>
 
 </head>
@@ -57,6 +88,16 @@
         </span>
         <span>Login cu Google</span>
     </a>
+
+    <a href="{% provider_login_url 'facebook' %}" class="facebook-btn" aria-label="Login cu Facebook">
+        <span class="facebook-logo" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="#1877F2">
+                <path d="M22.675 0h-21.35C.597 0 0 .6 0 1.333v21.333C0 23.4.597 24 1.325 24H12v-9.294H9.294v-3.647H12V8.294c0-2.682 1.64-4.147 4.038-4.147 1.152 0 2.143.086 2.43.124v2.822H16.4c-1.296 0-1.547.616-1.547 1.52v1.993h3.09l-.403 3.647H14.85V24h7.825c.73 0 1.325-.6 1.325-1.333V1.333C24 .6 23.403 0 22.675 0z"/>
+            </svg>
+        </span>
+        <span>Login cu Facebook</span>
+    </a>
+
 
 
 </form>
